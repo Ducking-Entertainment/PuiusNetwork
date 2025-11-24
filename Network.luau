@@ -8,9 +8,7 @@
 	Run context:  Shared
 	
 	Changelog:
-	* FireAllClients directly passed the arguments to :FireAllClients method of the specified RemoteEvent - @SuperPuiu
-	* Remove possible unecessary code- @SuperPuiu
-	* Disconnect now removes the main entry from the event table if the entry contains no additional connections - @SuperPuiu
+	* Minor code changes. - @SuperPuiu
 ]]
 
 local Network = {};
@@ -71,7 +69,10 @@ local function Sanitize(Data: ({[string]: any}), FunctionName: (string), ...: an
 		local IsStrict = Flags["-sanitizer-strict"];
 
 		if IsStrict then
-			if not Silence then warn(Message); end;
+			if not Silence then
+				warn(Message);
+			end;
+
 			return false;
 		elseif not Silence then
 			warn(Message);
@@ -141,7 +142,8 @@ local function CallEventsCallbacks(Name: (string), Parallel: boolean, ...: any) 
 			Safe = Sanitize(Data, Name, ...);
 		end;
 
-		if not Safe then 
+		if not Safe then
+			warn("%s failed argument validation.", Name);
 			continue; 
 		end;
 
@@ -253,7 +255,9 @@ function Network.ConnectOnEventSanitized(Name: (string), SanitizerTable: {[any]:
 	NetworkAssert(typeof(Func) == "function", "Attempted to create a remote connection with a non function argument (expected function, got %s)", typeof(Func));
 	local IsEmpty = SanitizerTable ~= nil;
 
-	if SanitizerTable == nil then SanitizerTable = {} :: {}; end;
+	if SanitizerTable == nil then 
+		SanitizerTable = {} :: {};
+	end;
 
 	if not RemoteEvents[Name] then RemoteEvents[Name] = {}; end;
 	if SanitizerTable and typeof(SanitizerTable.Enabled) ~= "boolean" then SanitizerTable.Enabled = IsEmpty; end;
@@ -293,7 +297,7 @@ end;
 function Network.ConnectOnParallel(Name: string, Func: (...any) -> (...any)): number
 	local ID: number = Network.ConnectOnEventSanitized(Name, nil, Func);
 	Network.ModifyConnectionConfiguration(Name, ID, "Parallel", true);
-	return ID;	
+	return ID;
 end;
 
 function Network.ConnectOnEventOnce(Name: (string), Func: (any)): number
@@ -319,7 +323,7 @@ function Network.Disconnect(Name: (string), ID: (number)) : ()
 	NetworkAssert(RemoteEvents[Name][ID], "Attempted to remove invalid index (%s is an invalid table key)", tostring(ID) or "");
 
 	RemoteEvents[Name][ID] = nil;
-	
+
 	if (#RemoteEvents[Name] == 0) then
 		RemoteEvents[Name] = nil;
 	end;
@@ -377,7 +381,7 @@ if IsServer then
 
 	function Network:FireAllClientsExcept(Exception: (Player?), ...: any) : ()
 		NetworkAssert(IsServer, "Unable to call method FireAllClientsExcept from client.");
-		
+
 		for _, Player in pairs(Players:GetPlayers()) do
 			if Player ~= Exception then
 				Network:FireClient(Player, ...);
