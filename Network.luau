@@ -6,7 +6,7 @@
 	Info:         Networking module.
 	Creation:     3/1/25 (MM/DD/YY)
 	Run context:  Shared
-	
+
 	Changelog:
 	* Minor code changes. - @SuperPuiu
 ]]
@@ -64,7 +64,7 @@ local function Sanitize(Data: ({[string]: any}), FunctionName: (string), ...: an
 	local TableLen = RunService:IsServer() and #Arguments - 1 or #Arguments;
 	local Silence = Flags["-silence-sanitizer-warnings"] or Flags["-silence-all"];
 
-	if not Data.Configuration.Variadic and TableLen ~= #Data.Configuration.Sanitize.Arguments then 
+	if not Data.Configuration.Variadic and TableLen ~= #Data.Configuration.Sanitize.Arguments then
 		local Message = string.format("Less or more arguments than sanitized arguments detected for %s. (expected %i got %i)", FunctionName, #Data.Configuration.Sanitize.Arguments, TableLen);
 		local IsStrict = Flags["-sanitizer-strict"];
 
@@ -87,16 +87,16 @@ local function Sanitize(Data: ({[string]: any}), FunctionName: (string), ...: an
 		local Arg = Arguments[ArgIndex];
 
 		if Arg == nil and not ArgProperties.Nullable then
-			if not Silence then 
-				warn(string.format("Argument %i is nil although it's not Nullable.", ArgIndex)); 
+			if not Silence then
+				warn(string.format("Argument %i is nil although it's not Nullable.", ArgIndex));
 			end;
 
 			return false;
 		end;
 
 		if typeof(Arg) ~= ArgProperties.Type then
-			if not Silence then 
-				warn(string.format("Argument %i is of unexpected type (argument is of type \"%s\" while \"%s\" was expected.)", ArgIndex, typeof(Arg), ArgProperties.Type)); 
+			if not Silence then
+				warn(string.format("Argument %i is of unexpected type (argument is of type \"%s\" while \"%s\" was expected.)", ArgIndex, typeof(Arg), ArgProperties.Type));
 			end;
 
 			return false;
@@ -105,12 +105,12 @@ local function Sanitize(Data: ({[string]: any}), FunctionName: (string), ...: an
 		if ArgProperties.Type == "string" then
 			local Len, MaxLength = string.len(Arg), ArgProperties.Max or math.huge;
 
-			if not Silence and Len > MaxLength then 
-				warn(string.format("Argument %i is too long. (expected length %i, got %i)", ArgIndex, MaxLength, Len)); 
+			if not Silence and Len > MaxLength then
+				warn(string.format("Argument %i is too long. (expected length %i, got %i)", ArgIndex, MaxLength, Len));
 			end;
 
-			if Len > MaxLength then 
-				return false; 
+			if Len > MaxLength then
+				return false;
 			end;
 		elseif ArgProperties.Type == "number" then
 			local Smallest, Largest = ArgProperties.Min or math.huge * -1, ArgProperties.Max or math.huge;
@@ -132,8 +132,8 @@ local function CallEventsCallbacks(Name: (string), Parallel: boolean, ...: any) 
 	NetworkAssert(RemoteEvents[Name], "NetEvent fired with unknown function name. (%s is an invalid table key)", tostring(Name) or "");
 
 	for Index, Data in pairs(RemoteEvents[Name]) do
-		if Parallel and not Data.Configuration.Parallel then 
-			continue; 
+		if Parallel and not Data.Configuration.Parallel then
+			continue;
 		end;
 
 		local Safe = true;
@@ -143,8 +143,8 @@ local function CallEventsCallbacks(Name: (string), Parallel: boolean, ...: any) 
 		end;
 
 		if not Safe then
-			warn("%s failed argument validation.", Name);
-			continue; 
+			warn(string.format("%s failed argument validation.", Name));
+			continue;
 		end;
 
 		Data.Connection(...);
@@ -211,7 +211,7 @@ function Network:DefineEvents(Sanziter: {[string]: any}, Events: {[string]: any}
 	local ok: {[number]: number} = {};
 
 	for i: string, v: (...any) -> (...any) in Events do
-		if type(i) ~= "string" then 
+		if type(i) ~= "string" then
 			continue;
 		end;
 
@@ -255,7 +255,7 @@ function Network.ConnectOnEventSanitized(Name: (string), SanitizerTable: {[any]:
 	NetworkAssert(typeof(Func) == "function", "Attempted to create a remote connection with a non function argument (expected function, got %s)", typeof(Func));
 	local IsEmpty = SanitizerTable ~= nil;
 
-	if SanitizerTable == nil then 
+	if SanitizerTable == nil then
 		SanitizerTable = {} :: {};
 	end;
 
@@ -336,7 +336,7 @@ Network.ConnectOnInvoke("Puius_WaitForEvent", function(...: any): boolean
 	if IsServer then
 		ConnectionName, ConnectionType = Args[2], Args[3];
 	else
-		ConnectionName, ConnectionType = unpack(Args);    
+		ConnectionName, ConnectionType = unpack(Args);
 	end;
 
 	NetworkAssert(typeof(ConnectionName) == "string", "Attempted to invoke Puius_WaitForEvent with invalid ConnectionName. (expected string, got %s)", typeof(ConnectionName));
@@ -344,7 +344,7 @@ Network.ConnectOnInvoke("Puius_WaitForEvent", function(...: any): boolean
 
 	WaitForEventInternal(ConnectionName, ConnectionType);
 
-	return true;  
+	return true;
 end);
 
 if IsServer then
