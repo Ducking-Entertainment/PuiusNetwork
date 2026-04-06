@@ -8,7 +8,8 @@
 	Run context:  Shared
 
 	Changelog:
-	* Minor code changes. - @SuperPuiu
+	* Make sure that the Name string stays under NameLimit (default is 64); - @SuperPuiu
+	* Add a TimeoutTime value for WaitForEvent (default is 25); - @SuperPuiu
 ]]
 
 local Network = {};
@@ -27,6 +28,9 @@ local NetworkFunction = ReplicatedStorage:FindFirstChild("NetworkFunction") :: R
 local NetworkUnreliable = ReplicatedStorage:FindFirstChild("NetworkUnreliable") :: UnreliableRemoteEvent;
 
 local IsServer: (boolean) = RunService:IsServer();
+
+local NameLimit: number = 64;
+local TimeoutTime: number = 25;
 
 local Flags: ({[string]: boolean}) = {
 	["-silence-sanitizer-warnings"] = false,
@@ -188,11 +192,19 @@ function Network:WaitForEvent(ConnectionName: (string), Player: (Player), Connec
 		end;
 	else
 		local WarnTask = task.delay(3, warn, InfiniteMessage);
+		local EventLoaded = false;
+		local StartTime = os.clock();
 
-		Network:InvokeClient(Player, "Puius_WaitForEvent", ConnectionName, ConnectionType);
+		task.spawn(function()
+			EventLoaded = Network:InvokeClient(Player, "Puius_WaitForEvent", ConnectionName, ConnectionType);
+		end);
+
+		while (not EventLoaded and (os.clock() - StartTime) < TimeoutTime) do
+			task.wait();
+		end;
 
 		task.cancel(WarnTask);
-		return true;
+		return EventLoaded;
 	end;
 end;
 
@@ -424,19 +436,23 @@ if IsServer then
 	end;
 
 	NetworkEvent.OnServerEvent:Connect(function(Player: (Player), Name: (string), ...: any): ()
+		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than 128 characters.");
 		CallEventsCallbacks(Name, false, Player, ...);
 	end);
 
 	NetworkUnreliable.OnServerEvent:Connect(function(Player: (Player), Name: (string), ...: any): ()
+		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable with a name of more than 128 characters.");
 		CallEventsCallbacks(Name, false, Player, ...);
 	end);
 
 	if Actor then
 		NetworkEvent.OnServerEvent:ConnectParallel(function(Player: (Player), Name: (string), ...): ()
+			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than 128 characters.");
 			CallEventsCallbacks(Name, true, Player, ...);
 		end);
 
 		NetworkUnreliable.OnServerEvent:ConnectParallel(function(Player: (Player), Name: (string), ...: any): ()
+			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable with a name of more than 128 characters.");
 			CallEventsCallbacks(Name, true, Player, ...);
 		end);
 	end;
@@ -469,24 +485,29 @@ else
 	end;
 
 	NetworkEvent.OnClientEvent:Connect(function(Name: (string), ...: any): ()
+		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than 128 characters.");
 		CallEventsCallbacks(Name, false, ...);
 	end);
 
 	NetworkUnreliable.OnClientEvent:Connect(function(Name: (string), ...: any): ()
+		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable a with name of more than 128 characters.");
 		CallEventsCallbacks(Name, false, ...);
 	end);
 
 	if Actor then
 		NetworkEvent.OnClientEvent:ConnectParallel(function(Name: (string), ...: any): ()
+			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than 128 characters.");
 			CallEventsCallbacks(Name, true, ...);
 		end);
 
 		NetworkUnreliable.OnClientEvent:ConnectParallel(function(Name: (string), ...: any): ()
+			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable with a name of more than 128 characters.");
 			CallEventsCallbacks(Name, true, ...);
 		end);
 	end;
 
 	NetworkFunction.OnClientInvoke = function(Name: (string), ...: any): any
+		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkFunction with name of more than 128 characters.");
 		NetworkAssert(RemoteFunctions[Name], "NetworkFunction invoked with unknown function name. (%s is an invalid table key)", tostring(Name) or "");
 		return RemoteFunctions[Name](...);
 	end;
