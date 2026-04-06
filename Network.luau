@@ -436,23 +436,23 @@ if IsServer then
 	end;
 
 	NetworkEvent.OnServerEvent:Connect(function(Player: (Player), Name: (string), ...: any): ()
-		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than 128 characters.");
+		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than the maximum accepted characters.");
 		CallEventsCallbacks(Name, false, Player, ...);
 	end);
 
 	NetworkUnreliable.OnServerEvent:Connect(function(Player: (Player), Name: (string), ...: any): ()
-		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable with a name of more than 128 characters.");
+		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable with a name of more than the maximum accepted characters.");
 		CallEventsCallbacks(Name, false, Player, ...);
 	end);
 
 	if Actor then
 		NetworkEvent.OnServerEvent:ConnectParallel(function(Player: (Player), Name: (string), ...): ()
-			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than 128 characters.");
+			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than the maximum accepted characters.");
 			CallEventsCallbacks(Name, true, Player, ...);
 		end);
 
 		NetworkUnreliable.OnServerEvent:ConnectParallel(function(Player: (Player), Name: (string), ...: any): ()
-			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable with a name of more than 128 characters.");
+			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable with a name of more than the maximum accepted characters.");
 			CallEventsCallbacks(Name, true, Player, ...);
 		end);
 	end;
@@ -485,29 +485,29 @@ else
 	end;
 
 	NetworkEvent.OnClientEvent:Connect(function(Name: (string), ...: any): ()
-		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than 128 characters.");
+		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than the maximum accepted characters.");
 		CallEventsCallbacks(Name, false, ...);
 	end);
 
 	NetworkUnreliable.OnClientEvent:Connect(function(Name: (string), ...: any): ()
-		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable a with name of more than 128 characters.");
+		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable a with name of more than the maximum accepted characters.");
 		CallEventsCallbacks(Name, false, ...);
 	end);
 
 	if Actor then
 		NetworkEvent.OnClientEvent:ConnectParallel(function(Name: (string), ...: any): ()
-			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than 128 characters.");
+			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkEvent with a name of more than the maximum accepted characters.");
 			CallEventsCallbacks(Name, true, ...);
 		end);
 
 		NetworkUnreliable.OnClientEvent:ConnectParallel(function(Name: (string), ...: any): ()
-			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable with a name of more than 128 characters.");
+			NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkUnreliable with a name of more than the maximum accepted characters.");
 			CallEventsCallbacks(Name, true, ...);
 		end);
 	end;
 
 	NetworkFunction.OnClientInvoke = function(Name: (string), ...: any): any
-		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkFunction with name of more than 128 characters.");
+		NetworkAssert(#Name <= NameLimit, "Attempted to call NetworkFunction with name of more than the maximum accepted characters.");
 		NetworkAssert(RemoteFunctions[Name], "NetworkFunction invoked with unknown function name. (%s is an invalid table key)", tostring(Name) or "");
 		return RemoteFunctions[Name](...);
 	end;
